@@ -1385,22 +1385,24 @@ void gradar_pi::RenderRadarBuffer(unsigned char *buffer, int buffer_line_length,
                          if(data1 == 255){
                               draw_blob_gl(rad, b_start, b_end, 0.5, ca, sa);
                          }else{
-                              bool start = false;
-                              for (int bit_num = 0; bit_num <= 8; bit_num++){
-                                   if(data1 & 0x01 ){
-                                        if(!start){
-                                             start = true;
-                                             b_start=(double)(bit_num)/8.0;
-                                        }
-                                   }else{
-                                        if(start){
-                                             start = false;
-                                             b_end = (double)(bit_num)/8.0;
+							  unsigned char intensity = 0;
+                              for (int bit_num = 0; bit_num <= 4; bit_num++){
+								   unsigned char cI = data1 & 0x03; 
+                                   if(cI != intensity){
+                                   	   if(intensity != 0){
+                                             b_end = (double)(bit_num)/4.0;
+                                             glColor4ub(sred, sgrn, sblu, alpha / (4 - intensity));
                                              draw_blob_gl(rad, b_start, b_end, 0.5, ca, sa);
+                                             glColor4ub(sred, sgrn, sblu, alpha);
+                                             intensity = cI;
+                                        }
+                                        else if(cI != 0){
+                                             intensity = cI;
+                                             b_start=(double)(bit_num)/4.0;
                                         }
                                    }
-                                   data1 >>= 1;
-                              }
+                                   data1 >>= 2;
+							  }
                          }
                     }
                     packet_data++;
